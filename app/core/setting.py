@@ -12,4 +12,6 @@ class Settings:
     API_VERSION = os.getenv("API_VERSION", "v1")
     ENCRYPTION_KEY= os.getenv("ENCRYPTION_KEY", '')
 
+    MEROSHARE_URL = os.getenv("BASE_URL_MEROSHARE")
+
 settings = Settings()
