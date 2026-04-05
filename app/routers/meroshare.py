@@ -53,15 +53,14 @@ def apply_share(db: Session = Depends(get_db), request: Request = None):
                 auth=False,
                 json={"filterFieldParams":[{"key":"companyIssue.companyISIN.script","alias":"Scrip"},{"key":"companyIssue.companyISIN.company.name","alias":"Company Name"},{"key":"companyIssue.assignedToClient.name","value":"","alias":"Issue Manager"}],"page":1,"size":10,"searchRoleViewConstants":"VIEW_APPLICABLE_SHARE","filterDateParams":[{"key":"minIssueOpenDate","condition":"","alias":"","value":""},{"key":"maxIssueCloseDate","condition":"","alias":"","value":""}]}
             )
-
+        
         ipolist = []
         if ipolist_response['success']:
-            ipolist = ipolist_response.get("object", [])
-        else:
+            ipolist = ipolist_response['data'].get("object", [])
+
+        if len(ipolist) == 0:
             continue
 
-        if ipolist:
-            continue
         
         owndetails_response = safe_http_request(
             method='GET',
@@ -93,7 +92,6 @@ def apply_share(db: Session = Depends(get_db), request: Request = None):
         if bank_details_response['success']:
             bank_details = bank_details_response['data']
            
-
         for issue in ipolist:
             if issue.get("shareTypeName") == "IPO" and issue.get('action', '') == "" and issue.get('shareGroupName') == "Ordinary Shares" and issue.get('statusName') == 'CREATE_APPROVE':
                 
@@ -101,7 +99,7 @@ def apply_share(db: Session = Depends(get_db), request: Request = None):
                 ipo_details = ipo_details_response['data'] if ipo_details_response['success'] else None
 
                 check_response = safe_http_request(method='GET',url = f'{url}/api/meroShare/applicantForm/customerType/{issue.get("companyShareId")}/{owndetails.get("demat")}', headers={"Authorization": jwt_token})
-                
+                print(ipolist, 'test')
                 if check_response['success']:
                     if check_response['data'].get("status", {}) == 'ACCEPTED':
                         print("Customer is eligible to apply for this IPO")
@@ -121,16 +119,17 @@ def apply_share(db: Session = Depends(get_db), request: Request = None):
                                 "bankId": bank_id
                             }
 
-                            response_ipo = safe_http_request(
-                                method='POST',
-                                url =f'{url}/api/meroShare/applicantForm/share/apply',
-                                headers={"Authorization": jwt_token},
-                                json=ipo_request
-                            )
+                            # response_ipo = safe_http_request(
+                            #     method='POST',
+                            #     url =f'{url}/api/meroShare/applicantForm/share/apply',
+                            #     headers={"Authorization": jwt_token},
+                            #     json=ipo_request
+                            # )
 
-                            if response_ipo['success']:
-                                print('success')
-                            else:
-                                print('failed')
-
+                            # if response_ipo['success']:
+                            #     print('success')
+                            # else:
+                            #     print('failed')
+            else:
+                print("already applied")
     return success_response(message='Completed')

@@ -13,5 +13,10 @@ class Settings:
     ENCRYPTION_KEY= os.getenv("ENCRYPTION_KEY", '')
 
     MEROSHARE_URL = os.getenv("BASE_URL_MEROSHARE")
+    SECRET_KEY = os.getenv("SECRET_KEY")
+    ALGORITHM = os.getenv("ALGORITHM")
+    ACCESS_TOKEN_EXPIRE_HOURS = int(os.getenv("ACCESS_TOKEN_EXPIRE_HOURS", 1))
+    GOOGLE_CLIENT_ID= os.getenv("GOOGLE_CLIENT_ID")
+    GOOGLE_CLIENT_SECRET= os.getenv("GOOGLE_CLIENT_SECRET")
 
 settings = Settings()
