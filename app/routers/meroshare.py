@@ -2,17 +2,20 @@ from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 from app.deps import get_db
 from app.internal.response import success_response
+from app.models.user import User
 from app.schemas.meroshare import MeroshareCreate
 from app.models.meroshare import Meroshare
 from app.core.setting import settings
 from app.internal.encrypt import decrypt_string
 from app.internal.meroshare import safe_http_request
+from app.internal.jwt_utils import get_current_user
 
 router = APIRouter(prefix='/meroshare')
 
 @router.post("/save/account") #need to update with authication, (temp for now)
-def save_meroshare_account(db: Session = Depends(get_db), data: MeroshareCreate = None):
+def save_meroshare_account(db: Session = Depends(get_db), data: MeroshareCreate = None  , current_user: User = Depends(get_current_user)):
     meroshare = Meroshare(**data.model_dump())
+    meroshare.user_id = current_user.id
     db.add(meroshare)
     db.commit()
     db.refresh(meroshare)

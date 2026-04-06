@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers import meroshare, google_auth
+from app.routers import meroshare, google_auth, user
 from sqlalchemy import engine
 from app.core.database import Base
 from cryptography.fernet import Fernet
@@ -22,3 +22,4 @@ app.add_middleware(
 )
 app.include_router(router=meroshare.router, prefix='/api/v1')
 app.include_router(router=google_auth.router, prefix='/api/v1')
+app.include_router(router=user.router, prefix='/api/v1')

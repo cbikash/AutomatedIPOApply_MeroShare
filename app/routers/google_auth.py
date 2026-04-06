@@ -7,12 +7,12 @@ from sqlalchemy.orm import Session
 from app.deps import get_db
 from app.models.user import User
 from app.internal.response import success_response, error_response
-from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordRequestForm
 from typing import Annotated
 from app.services.user_service import UserService
+from app.internal.jwt_utils import get_current_user
 
 router = APIRouter(prefix='/auth')
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
 oauth = OAuth()
 oauth.register(
@@ -61,11 +61,8 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: 
 
 
 @router.get("/test")
-async def test_endpoint(db: Session = Depends(get_db)):
-
-    has_p = get_password_hash("password123")
-
-    return {"message": "This is a protected endpoint", "token": has_p}
+async def test_endpoint(current_user: User = Depends(get_current_user)):
+    return {"message": "This is a protected endpoint", "user": current_user}
 
 
 @router.get("/login/google")
