@@ -9,17 +9,37 @@ from app.core.setting import settings
 from app.internal.encrypt import decrypt_string
 from app.internal.meroshare import safe_http_request
 from app.internal.jwt_utils import get_current_user
+from app.services.meroshare_service import MeroshareService
 
 router = APIRouter(prefix='/meroshare')
 
-@router.post("/save/account") #need to update with authication, (temp for now)
-def save_meroshare_account(db: Session = Depends(get_db), data: MeroshareCreate = None  , current_user: User = Depends(get_current_user)):
-    meroshare = Meroshare(**data.model_dump())
-    meroshare.user_id = current_user.id
-    db.add(meroshare)
-    db.commit()
-    db.refresh(meroshare)
-    return success_response(data=None)
+@router.post("/") #need to update with authication, (temp for now)
+def save_meroshare_account(db: Session = Depends(get_db), data: MeroshareCreate = None, current_user: User = Depends(get_current_user)):
+    meroshare_service = MeroshareService(db, key=current_user.key)
+    data.username = meroshare_service.encrypt_username(data.username)
+    data.password = meroshare_service.encrypt_password(data.password)
+    data.crn = meroshare_service.encrypt_crn(data.crn)
+    data.pin = meroshare_service.encrypt_pin(data.pin)
+
+    try:
+        meroshare = Meroshare(**data.model_dump())
+        meroshare.user_id = current_user.id
+        db.add(meroshare)
+        db.commit()
+        db.refresh(meroshare)
+    except Exception as e:
+        db.rollback()
+        raise e
+    
+    return success_response(message='Meroshare account saved successfully')
+
+
+@router.get("/")
+def list_meroshare_accounts(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    meroshare_accounts = db.query(Meroshare).filter(Meroshare.user_id == current_user.id, Meroshare.is_deleted == False).all()
+    
+    return success_response(data=meroshare_accounts)
+
 
 @router.get("/apply")
 def apply_share(db: Session = Depends(get_db), request: Request = None):

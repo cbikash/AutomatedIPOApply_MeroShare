@@ -7,4 +7,4 @@ class UserService:
     
     def get_user(self, username: str):
         return self.db.query(User).filter(User.email == username).first()
-
+    
