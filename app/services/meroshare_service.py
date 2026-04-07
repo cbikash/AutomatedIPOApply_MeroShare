@@ -1,6 +1,8 @@
 from app.internal.encrypt import encrypt_string, decrypt_string
 from sqlalchemy.orm import Session
 
+from app.models.meroshare import Meroshare
+
 class MeroshareService:
     def __init__(self, db: Session, key: str = None):
         self.db = db
@@ -31,3 +33,12 @@ class MeroshareService:
     
     def decrypt_pin(self, encrypted_pin: str):
         return decrypt_string(encrypted_pin, self.key)
+
+    # Meroshare API interaction
+    def get_meroshare(self, meroshare_id: int):
+        # Fetch the encrypted credentials from the database
+        meroshare = self.db.query(Meroshare).filter(Meroshare.id == meroshare_id).first()
+        if not meroshare:
+            raise Exception("Meroshare account not found")
+
+        return meroshare

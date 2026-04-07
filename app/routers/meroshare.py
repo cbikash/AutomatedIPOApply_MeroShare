@@ -42,6 +42,27 @@ def list_meroshare_accounts(db: Session = Depends(get_db), current_user: User = 
     return success_response(data=data, message='Meroshare accounts retrieved successfully')
 
 
+@router.post("/apply/{meroshare_id}")
+def apply_for_share(db: Session = Depends(get_db), meroshare_id: int = None, request: Request = None, current_user: User = Depends(get_current_user)):
+    
+    meroshare = MeroshareService(db, key=current_user.key).get_meroshare(meroshare_id)
+    if not meroshare:
+        raise Exception("Meroshare account not found")
+    
+    if meroshare.user_id != current_user.id:
+        raise Exception("Unauthorized access to this Meroshare account")
+    
+    username = decrypt_string(meroshare.username, key=current_user.key)
+    password = decrypt_string(meroshare.password, key=current_user.key)
+    crn = decrypt_string(meroshare.crn, key=current_user.key)
+    pin = decrypt_string(meroshare.pin, key=current_user.key)
+
+    
+    
+
+
+
+
 @router.get("/apply")
 def apply_share(db: Session = Depends(get_db), request: Request = None):
     ip = request.client.host
