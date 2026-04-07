@@ -13,7 +13,5 @@ class Meroshare(BaseModel):
     pin = Column(String(200), default=None, nullable=True)
     user_id = Column(Integer, ForeignKey('users.id'))
 
-    # owner = relationship(
-    #     'User',
-    #     back_populates='meroshares'
-    # )
+    # relationship with User
+    user = relationship('User', back_populates='meroshare_accounts')

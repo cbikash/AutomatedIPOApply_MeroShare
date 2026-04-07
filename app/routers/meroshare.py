@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.deps import get_db
 from app.internal.response import success_response
 from app.models.user import User
-from app.schemas.meroshare import MeroshareCreate
+from app.schemas.meroshare import MeroshareCreate, MeroshareRead
 from app.models.meroshare import Meroshare
 from app.core.setting import settings
 from app.internal.encrypt import decrypt_string
@@ -37,8 +37,9 @@ def save_meroshare_account(db: Session = Depends(get_db), data: MeroshareCreate 
 @router.get("/")
 def list_meroshare_accounts(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     meroshare_accounts = db.query(Meroshare).filter(Meroshare.user_id == current_user.id, Meroshare.is_deleted == False).all()
+    data = [MeroshareRead.model_validate(meroshare) for meroshare in meroshare_accounts]
     
-    return success_response(data=meroshare_accounts)
+    return success_response(data=data, message='Meroshare accounts retrieved successfully')
 
 
 @router.get("/apply")

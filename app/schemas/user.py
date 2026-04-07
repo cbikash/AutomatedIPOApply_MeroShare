@@ -26,6 +26,10 @@ class UserRead(UserBase):
     email: str
     name: str | None = None
     disabled: bool | None = None
+    key: str | None = None
+
+    class Config:
+        from_attributes = True
 
 
 
