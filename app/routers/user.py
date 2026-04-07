@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Request, Depends
+from app.internal.response import success_response
 from app.schemas.user import UserCreate
 from app.models.user import User
 from sqlalchemy.orm import Session
@@ -13,6 +14,16 @@ router = APIRouter(prefix='/users')
 def read_users(request: Request = None):
     ip = request.client.host
     return {"message": f"Hello, your IP address is {ip}"}
+
+
+@router.get("/me", tags=["users"])
+def read_current_user(current_user: User = Depends(get_current_user)):
+    return success_response(data={
+        "id": current_user.id,
+        "email": current_user.email,
+        "name": current_user.name,
+        "key": current_user.key
+    })
 
 @router.post("/", tags=["users"])
 def create_user(user: UserCreate, db: Session = Depends(get_db)):

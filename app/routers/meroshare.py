@@ -56,10 +56,10 @@ def apply_share(db: Session = Depends(get_db), request: Request = None):
     .all())
 
     for client in clients:
-        username = decrypt_string(client.username)
-        password = decrypt_string(client.password)
-        crn = decrypt_string(client.crn)
-        pin = decrypt_string(client.pin)
+        username = decrypt_string(client.username, key=client.user.key)
+        password = decrypt_string(client.password, key=client.user.key)
+        crn = decrypt_string(client.crn, key=client.user.key)
+        pin = decrypt_string(client.pin, key=client.user.key)
 
         jwt_token = ""
         auth_response = safe_http_request(method='post', url=f'{url}/api/meroShare/auth/', json={"clientId": client.client_id,"username": username,"password": password}, auth=True)
