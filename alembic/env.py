@@ -7,7 +7,9 @@ from alembic import context
 from app.core.database import Base
 from app.models.user import User
 from app.models.meroshare import Meroshare
-
+from app.models.share import Share
+from app.models.sharelog import Sharelog
+from app.models.log import Log
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
